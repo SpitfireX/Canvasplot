@@ -1,8 +1,8 @@
 var fun = parser.parse("f(x)=max(sin(x), 0)");
 //fun = parser.parse("f(x) = sqrt(x) * log(x/3) + sin(pow(x, 1/5)) * cos(pow(x,3))");
 var fun2 = parser.parse("f(x)=tan(x)");
-fun2 = parser.parse("f(x)=x^2/sin(x)+x/x^3");
-fun2 = parser.parse("f(x)=1/x")
+// fun2 = parser.parse("f(x)=x^2/sin(x)+x/x^3");
+fun2 = parser.parse("f(x)=1/x^2")
 
 var canvas, ctx;
 var width, height;
@@ -46,13 +46,14 @@ function init(){
 	canvas.addEventListener("DOMMouseScroll", scrollListener);
 	
 	canvas.addEventListener("mousedown", function(e){
+		if (e.button != 1)
+			return;
 		mdown = true;
 		minit = false;
 	});
 	canvas.addEventListener("mouseup", function(e){
 		mdown = false;
 		minit = false;
-		update();
 	});
 	canvas.addEventListener("mousemove", function(e){
 		if (!mdown)
@@ -89,7 +90,7 @@ function updateOrigin(){
 function update(){
 	ctx.clearRect(0, 0, width, height);
 	drawGrid();
-	drawFunction(fun, "blue");
+	// drawFunction(fun, "blue");
 	drawFunction(fun2, "green");
 	drawCoordinateSystem();
 }
@@ -206,28 +207,62 @@ function drawGrid(){
 	ctx.restore();
 }
 
+function traceFunction(fun){
+	range = [(0-origin[0])/xscale, (width-origin[0])/xscale];
+	values = [];
+	for (var x = 0; x < width; x++){
+		var y = -fun((x/xscale)+range[0]);
+		values.push((y*yscale)+origin[1]);
+	}
+	
+	current = [];
+	paths = [current];
+	skip = false;
+	for (var x = 0; x < values.length; x++){
+		if(!skip){
+			current.push([x, values[x]]);
+			if (values[x] < 0 || values[x] >= height){
+				skip = true;
+				current = [];
+				paths.push(current);
+				console.log("end", x, values[x]);
+			}
+		} else {
+			if (x+1 < values.length && 
+				(values[x+1] >= 0 || values[x+1 < height])){
+					console.log("start", x, values[x]);
+					current.push([x, values[x]]);
+					skip = false;
+				}
+		}
+	}
+	
+	return paths;
+}
+
 function drawFunction(fun, color){
+	paths = traceFunction(fun);
+	
 	ctx.save();
 	ctx.translate(0.5, 0.5);
-	
 	ctx.strokeStyle = color;
 	ctx.lineWidth = 2;
 	
-	range = [(0-origin[0])/xscale, (width-origin[0])/xscale];
-	
-	ctx.beginPath();
-	
-	var s = 1/xscale;
-	var y = -fun(range[0]);
-	ctx.moveTo(0, (y*yscale)+origin[1]);
-	
-	for (var x = range[0]+s; x <= range[1]; x += (s*2)){
-		y = -fun(x);
-		xc = (x*xscale)+origin[0];
-		yc = (y*yscale)+origin[1];
-		ctx.lineTo(xc, yc);
+	for (var i = 0; i < paths.length; i++){
+		ctx.beginPath();
+		
+		var x = paths[i][0][0];
+		var y = paths[i][0][1];
+		ctx.moveTo(x, y);
+		
+		for (var j = 1; j < paths[i].length; j++){
+			x = paths[i][j][0];
+			y = paths[i][j][1];
+			ctx.lineTo(x, y);
+		}
+		
+		ctx.stroke();
 	}
 	
-	ctx.stroke();
 	ctx.restore();
 }
