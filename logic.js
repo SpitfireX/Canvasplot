@@ -1,6 +1,5 @@
 var fun = parser.parse("f(x)=max(sin(x), 0)");
-fun = parser.parse("f(x)=1/x");
-fun = parser.parse("f(x) = sqrt(x) * log(x/3) + sin(pow(x, 1/5)) * cos(pow(x,3))");
+//fun = parser.parse("f(x) = sqrt(x) * log(x/3) + sin(pow(x, 1/5)) * cos(pow(x,3))");
 var fun2 = parser.parse("f(x)=tan(x)");
 fun2 = parser.parse("f(x)=x^2/sin(x)+x/x^3");
 fun2 = parser.parse("f(x)=1/x")
@@ -14,42 +13,85 @@ var gridScale = 2;
 
 var labels = true;
 var grid = true;
-var coordianteSystem = false;
+var coordianteSystem = true;
+
+var mdown = false;
+var minit = false;
+var mcoords = {x:0,y:0};
 
 function init(){
-	window.addEventListener("resize", update);
+	window.addEventListener("resize", updateOrigin);
 	
 	canvas = document.getElementById("viewport");
 	ctx = canvas.getContext("2d");
 	
 	var scrollListener = function(e){
 		var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-		if (xscale > 5 || delta > 0)
-			xscale += delta;
-		if (yscale > 5 || delta > 0)
-			yscale += delta;
+		if(e.altKey){
+			if (xscale > 5 || delta > 0)
+				xscale += delta;
+		} else if (e.shiftKey) {
+			if (yscale > 5 || delta > 0)
+				yscale += delta;
+		} else {
+			if (xscale > 5 || delta > 0)
+				xscale += delta;
+			if (yscale > 5 || delta > 0)
+				yscale += delta;
+		}
+
 		update();
 	}
 	canvas.addEventListener("mousewheel", scrollListener);
 	canvas.addEventListener("DOMMouseScroll", scrollListener);
 	
+	canvas.addEventListener("mousedown", function(e){
+		mdown = true;
+		minit = false;
+	});
+	canvas.addEventListener("mouseup", function(e){
+		mdown = false;
+		minit = false;
+		update();
+	});
+	canvas.addEventListener("mousemove", function(e){
+		if (!mdown)
+			return;
+		
+		if (minit){
+			dx = e.x - mcoords.x;
+			dy = e.y - mcoords.y;
+			
+			origin[0] += dx;
+			origin[1] += dy;
+			
+			update();
+		}
+		
+		minit = true;
+		mcoords.x = e.x;
+		mcoords.y = e.y;
+	});
+	
+	updateOrigin();
 	update();
 }
 
-function update(){
+function updateOrigin(){
 	width = canvas.scrollWidth;
 	height = canvas.scrollHeight;
 	ctx.canvas.width = width;
 	ctx.canvas.height = height;
 	
 	origin = [Math.floor(width/2), Math.floor(height/2)];
-	
+}
+
+function update(){
 	ctx.clearRect(0, 0, width, height);
 	drawGrid();
-	//drawFunction(fun, "blue");
+	drawFunction(fun, "blue");
 	drawFunction(fun2, "green");
 	drawCoordinateSystem();
-	console.log(xscale);
 }
 
 function drawCoordinateSystem(){
@@ -171,7 +213,7 @@ function drawFunction(fun, color){
 	ctx.strokeStyle = color;
 	ctx.lineWidth = 2;
 	
-	range = [(0-origin[0])/xscale, (width-origin[0])/yscale];
+	range = [(0-origin[0])/xscale, (width-origin[0])/xscale];
 	
 	ctx.beginPath();
 	
