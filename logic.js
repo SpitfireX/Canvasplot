@@ -2,7 +2,7 @@ var fun = parser.parse("f(x)=max(sin(x), 0)");
 //fun = parser.parse("f(x) = sqrt(x) * log(x/3) + sin(pow(x, 1/5)) * cos(pow(x,3))");
 var fun2 = parser.parse("f(x)=tan(x)");
 // fun2 = parser.parse("f(x)=x^2/sin(x)+x/x^3");
-fun2 = parser.parse("f(x)=1/x^2")
+fun2 = parser.parse("f(x)=1/x")
 
 var canvas, ctx;
 var width, height;
@@ -90,7 +90,7 @@ function updateOrigin(){
 function update(){
 	ctx.clearRect(0, 0, width, height);
 	drawGrid();
-	// drawFunction(fun, "blue");
+	drawFunction(fun, "blue");
 	drawFunction(fun2, "green");
 	drawCoordinateSystem();
 }
@@ -225,18 +225,23 @@ function traceFunction(fun){
 				skip = true;
 				current = [];
 				paths.push(current);
-				console.log("end", x, values[x]);
+				// console.log("end", x, values[x]);
 			}
 		} else {
-			if (x+1 < values.length && 
-				(values[x+1] >= 0 || values[x+1 < height])){
-					console.log("start", x, values[x]);
-					current.push([x, values[x]]);
+			if (x < values.length && 
+				(values[x] >= 0 && values[x] < height)){
 					skip = false;
-				}
+					current.push([x-1, values[x-1]]);
+					current.push([x, values[x]]);
+					// console.log("start", x-1, values[x-1]);
+			}
 		}
 	}
 	
+	paths = paths.filter(function(path){
+		return path.length > 0;
+	});
+
 	return paths;
 }
 
@@ -249,6 +254,11 @@ function drawFunction(fun, color){
 	ctx.lineWidth = 2;
 	
 	for (var i = 0; i < paths.length; i++){
+		// if (i%2 == 0)
+			// ctx.strokeStyle = "red";
+		// else
+			// ctx.strokeStyle = "green";
+		
 		ctx.beginPath();
 		
 		var x = paths[i][0][0];
