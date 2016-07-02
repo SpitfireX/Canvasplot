@@ -2,11 +2,72 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
 	<link rel="stylesheet" type="text/css" href="style.css">
-    <script src="parser.js"></script>
-    <script src="logic.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.0-beta.1/jquery-ui.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+	<script src="parser.js"></script>
+	<script src="logic.js"></script>
 </head>
 <body onload="init()">
 	<canvas id="viewport">Plot</canvas>
-	<div id="sidebar"></div>
+	<div id="sidebar">
+		<ul id="sidebarnav" class="collapsible" data-collapsible="accordion">
+			<li>
+				<div class="collapsible-header sidebar-header active"><i class="material-icons">list</i>Functions</div>
+				<div class="collapsible-body">
+					<div id="funlist">
+						<div class="card funcard">
+							<div class="funindicator" style="background:blue;"></div>
+							<p>f(x)=x^2</p>
+						</div>
+						<div class="card funcard">
+							<div class="funindicator" style="background:green;"></div>
+							<p>f(x)=x^2</p>
+						</div>
+					</div>
+				</div>
+			</li>
+			<li>
+				<div class="collapsible-header sidebar-header"><i class="material-icons">settings</i>Settings</div>
+				<div class="collapsible-body">
+					<div id="settinglist">
+						<div class="card settingcard">
+							<span class="card-title">View</span>
+							<div class="switch switchgroup">
+								<span>Grid</span>
+								<label>
+									Off
+									<input type="checkbox">
+									<span class="lever"></span>
+									On
+								</label>
+							</div>
+							<div class="switch switchgroup">
+								<span>Labels</span>
+								<label>
+									Off
+									<input type="checkbox">
+									<span class="lever"></span>
+									On
+								</label>
+							</div>
+							<div class="switch switchgroup">
+								<span>Axes</span>
+								<label>
+									Off
+									<input type="checkbox">
+									<span class="lever"></span>
+									On
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+		</ul>
+		<a id="add-fab" class="btn-floating btn-large waves-effect waves-light red tooltipped" data-position="left" data-delay="100" data-tooltip="Add new function""><i class="material-icons">add</i></a>
+	</div>
 </body>

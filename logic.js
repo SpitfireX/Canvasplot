@@ -22,6 +22,10 @@ var mcoords = {x:0,y:0};
 function init(){
 	window.addEventListener("resize", updateOrigin);
 	
+	$(document).dblclick(function() {
+		$("#sidebar").toggle("slide", {direction:"right"}, updateOrigin);
+	});
+	
 	canvas = document.getElementById("viewport");
 	ctx = canvas.getContext("2d");
 	
@@ -75,7 +79,6 @@ function init(){
 	});
 	
 	updateOrigin();
-	update();
 }
 
 function updateOrigin(){
@@ -85,6 +88,7 @@ function updateOrigin(){
 	ctx.canvas.height = height;
 	
 	origin = [Math.floor(width/2), Math.floor(height/2)];
+	update();
 }
 
 function update(){
